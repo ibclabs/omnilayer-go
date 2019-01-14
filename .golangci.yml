@@ -1,0 +1,53 @@
+run:
+  concurrency: 8
+  deadline: 180s
+  issues-exit-code: 1
+  tests: false
+  skip-dirs:
+  - vendor
+  - example
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  govet:
+    check-shadowing: true
+  gocyclo:
+    min-complexity: 15
+  maligned:
+    suggest-new: true
+  dupl:
+    threshold: 100
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+  misspell:
+    locale: US
+  lll:
+    line-length: 150
+    tab-width: 1
+  unused:
+    check-exported: false
+  unparam:
+    algo: cha
+    check-exported: false
+  nakedret:
+    max-func-lines: 30
+  prealloc:
+    simple: true
+    range-loops: true
+    for-loops: true
+
+linters:
+  enable-all: true
+  disable:
+  - golint
+  - varcheck
+  - megacheck
+
