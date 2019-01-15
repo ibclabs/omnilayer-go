@@ -2,11 +2,9 @@ package omnilayer
 
 import (
 	"bytes"
-	"container/list"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -17,31 +15,13 @@ const (
 )
 
 type Client struct {
-	id         uint64
-	config     *ConnConfig
-	httpClient *http.Client
-
-	requestLock  sync.Mutex
-	requestMap   map[uint64]*list.Element
-	requestList  *list.List
+	id           uint64
+	config       *ConnConfig
+	httpClient   *http.Client
 	sendPostChan chan *sendPostDetails
 
 	shutdown chan struct{}
 	done     chan struct{}
-}
-
-func (c *Client) addRequest(jReq *jsonRequest) error {
-	c.requestLock.Lock()
-	defer c.requestLock.Unlock()
-
-	select {
-	case <-c.shutdown:
-		return errClientShutdown()
-	default:
-		element := c.requestList.PushBack(jReq)
-		c.requestMap[jReq.id] = element
-		return nil
-	}
 }
 
 func (c *Client) do(cmd command) chan *response {
@@ -74,20 +54,14 @@ func (c *Client) sendPost(jReq *jsonRequest) {
 	req.Header.Set(contentType, contentTypeJSON)
 	req.SetBasicAuth(c.config.User, c.config.Pass)
 
-	c.post(req, jReq)
-}
-
-func (c *Client) post(httpReq *http.Request, jReq *jsonRequest) {
-	// Don't send the message if shutting down.
 	select {
 	case <-c.shutdown:
-		jReq.responseChan <- &response{result: nil, err: errClientShutdown()}
+		jReq.responseChan <- &response{err: errClientShutdown()}
 	default:
-	}
-
-	c.sendPostChan <- &sendPostDetails{
-		jsonRequest: jReq,
-		httpRequest: httpReq,
+		c.sendPostChan <- &sendPostDetails{
+			jsonRequest: jReq,
+			httpRequest: req,
+		}
 	}
 }
 
@@ -97,21 +71,15 @@ func New(config *ConnConfig) *Client {
 	client := &Client{
 		config:       config,
 		httpClient:   httpClient,
-		requestMap:   make(map[uint64]*list.Element),
-		requestList:  list.New(),
 		sendPostChan: make(chan *sendPostDetails, sendPostBufferSize),
 
 		shutdown: make(chan struct{}, 1),
 		done:     make(chan struct{}, 1),
 	}
 
-	client.asyncStart()
+	go client.sendPostHandler()
 
 	return client
-}
-
-func (c *Client) asyncStart() {
-	go c.sendPostHandler()
 }
 
 func (c *Client) sendPostHandler() {
@@ -162,7 +130,6 @@ func (c *Client) handleSendPostMessage(details *sendPostDetails) {
 		return
 	}
 
-	// Try to unmarshal the response as a regular JSON-RPC response.
 	var resp rawResponse
 	err = json.Unmarshal(respBytes, &resp)
 	if err != nil {
@@ -189,9 +156,6 @@ func (c *Client) NextID() uint64 {
 }
 
 func (c *Client) Shutdown() {
-	c.requestLock.Lock()
-	defer c.requestLock.Unlock()
-
 	select {
 	case <-c.shutdown:
 		return
@@ -199,25 +163,5 @@ func (c *Client) Shutdown() {
 	}
 
 	close(c.shutdown)
-
-	for e := c.requestList.Front(); e != nil; e = e.Next() {
-		req, ok := e.Value.(*jsonRequest)
-		if !ok {
-			continue
-		}
-
-		req.responseChan <- &response{
-			result: nil,
-			err:    errClientShutdown(),
-		}
-	}
-
-	c.removeAllRequests()
-
 	<-c.done
-}
-
-func (c *Client) removeAllRequests() {
-	c.requestMap = make(map[uint64]*list.Element)
-	c.requestList.Init()
 }
