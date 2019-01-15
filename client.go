@@ -21,19 +21,13 @@ type Client struct {
 	config     *ConnConfig
 	httpClient *http.Client
 
-	requestLock sync.Mutex
-	requestMap  map[uint64]*list.Element
-	requestList *list.List
-
-	sendChan     chan []byte
+	requestLock  sync.Mutex
+	requestMap   map[uint64]*list.Element
+	requestList  *list.List
 	sendPostChan chan *sendPostDetails
-	disconnect   chan struct{}
-	shutdown     chan struct{}
-	wg           sync.WaitGroup
-}
 
-func (c *Client) WaitForShutdown() {
-	c.wg.Wait()
+	shutdown chan struct{}
+	done     chan struct{}
 }
 
 func (c *Client) addRequest(jReq *jsonRequest) error {
@@ -51,25 +45,17 @@ func (c *Client) addRequest(jReq *jsonRequest) error {
 }
 
 func (c *Client) do(cmd command) chan *response {
-	// Get the method associated with the command.
-	method := cmd.Method()
-
-	// Marshal the command.
-	id := c.NextID()
-
-	marshalledJSON, err := marshalCmd(cmd)
+	body, err := marshalCmd(cmd)
 	if err != nil {
 		return newFutureError(err)
 	}
 
-	// Generate the request and send it along with a channel to respond on.
 	responseChan := make(chan *response, 1)
 	jReq := &jsonRequest{
-		id:             id,
-		method:         method,
-		cmd:            cmd,
-		marshalledJSON: marshalledJSON,
-		responseChan:   responseChan,
+		id:           c.NextID(),
+		cmd:          cmd,
+		body:         body,
+		responseChan: responseChan,
 	}
 
 	c.sendPost(jReq)
@@ -78,7 +64,7 @@ func (c *Client) do(cmd command) chan *response {
 }
 
 func (c *Client) sendPost(jReq *jsonRequest) {
-	req, err := http.NewRequest(http.MethodPost, "http://"+c.config.Host, bytes.NewReader(jReq.marshalledJSON))
+	req, err := http.NewRequest(http.MethodPost, "http://"+c.config.Host, bytes.NewReader(jReq.body))
 	if err != nil {
 		jReq.responseChan <- &response{result: nil, err: err}
 		return
@@ -113,10 +99,10 @@ func New(config *ConnConfig) *Client {
 		httpClient:   httpClient,
 		requestMap:   make(map[uint64]*list.Element),
 		requestList:  list.New(),
-		sendChan:     make(chan []byte, sendBufferSize),
 		sendPostChan: make(chan *sendPostDetails, sendPostBufferSize),
-		disconnect:   make(chan struct{}),
-		shutdown:     make(chan struct{}),
+
+		shutdown: make(chan struct{}, 1),
+		done:     make(chan struct{}, 1),
 	}
 
 	client.asyncStart()
@@ -125,7 +111,6 @@ func New(config *ConnConfig) *Client {
 }
 
 func (c *Client) asyncStart() {
-	c.wg.Add(1)
 	go c.sendPostHandler()
 }
 
@@ -155,7 +140,7 @@ cleanup:
 		}
 	}
 
-	c.wg.Done()
+	close(c.done)
 }
 
 func (c *Client) handleSendPostMessage(details *sendPostDetails) {
@@ -228,6 +213,8 @@ func (c *Client) Shutdown() {
 	}
 
 	c.removeAllRequests()
+
+	<-c.done
 }
 
 func (c *Client) removeAllRequests() {

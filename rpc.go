@@ -52,3 +52,18 @@ func (c *Client) CreateRawTransaction(parameters map[string]uint32) (*omnijson.C
 		Parameters: params,
 	})).Receive()
 }
+
+func (c *Client) OmniCreateRawTxOpReturn(raw, payload string) (*omnijson.OmniCreateRawTxOpReturnResult, error) {
+	return futureOmniCreateRawTxOpReturn(c.do(omnijson.OmniCreateRawTxOpReturnCommand{
+		Raw:     raw,
+		Payload: payload,
+	})).Receive()
+}
+
+func (c *Client) OmniCreateRawTxReference(raw, destination, amount string) (*omnijson.OmniCreateRawTxReferenceResult, error) {
+	return futureOmniCreateRawTxReference(c.do(omnijson.OmniCreateRawTxReferenceCommand{
+		Raw:         raw,
+		Destination: destination,
+		Amount:      amount,
+	})).Receive()
+}

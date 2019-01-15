@@ -12,13 +12,13 @@ type CreateRawTransactionCommand struct {
 }
 
 type CreateRawTransactionParameter struct {
-	Tx   string
-	Vout uint32
+	Tx   string `json:"txid"`
+	Vout uint32 `json:"vout"`
 }
 
 type createrawtransactionOutput struct {
-	Address string
-	Data    string
+	Address string `json:"address,omitempty"`
+	Data    string `json:"data,omitempty"`
 }
 
 func (CreateRawTransactionCommand) Method() string {
@@ -30,5 +30,5 @@ func (CreateRawTransactionCommand) ID() string {
 }
 
 func (cmd CreateRawTransactionCommand) Params() []interface{} {
-	return []interface{}{cmd.Parameters, createrawtransactionOutput{Address: "", Data: ""}}
+	return []interface{}{cmd.Parameters, createrawtransactionOutput{}}
 }

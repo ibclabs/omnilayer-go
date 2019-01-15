@@ -6,10 +6,7 @@ import (
 	"net/http"
 )
 
-const (
-	sendBufferSize     = 50
-	sendPostBufferSize = 100
-)
+const sendPostBufferSize = 100
 
 type rawResponse struct {
 	Result json.RawMessage `json:"result"`
@@ -29,11 +26,10 @@ type sendPostDetails struct {
 }
 
 type jsonRequest struct {
-	id             uint64
-	method         string
-	cmd            interface{}
-	marshalledJSON []byte
-	responseChan   chan *response
+	id           uint64
+	cmd          command
+	body         []byte
+	responseChan chan *response
 }
 
 type response struct {
@@ -64,14 +60,11 @@ type ConnConfig struct {
 	DisableAutoReconnect bool
 	DisableConnectOnNew  bool
 	EnableBCInfoHacks    bool
-	//DisableTLS bool
 }
 
-type errorCode int
-
 type rpcError struct {
-	Code    errorCode `json:"code"`
-	Message string    `json:"message"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
 func (e *rpcError) Error() string {
@@ -110,7 +103,7 @@ func newRpcRequest(cmd command) (*rpcRequest, error) {
 	}
 
 	return &rpcRequest{
-		Jsonrpc: "1.0",
+		JsonRPC: "1.0",
 		ID:      id,
 		Method:  method,
 		Params:  rawParams,
@@ -118,7 +111,7 @@ func newRpcRequest(cmd command) (*rpcRequest, error) {
 }
 
 type rpcRequest struct {
-	Jsonrpc string            `json:"jsonrpc"`
+	JsonRPC string            `json:"jsonrpc"`
 	Method  string            `json:"method"`
 	Params  []json.RawMessage `json:"params"`
 	ID      string            `json:"id"`
