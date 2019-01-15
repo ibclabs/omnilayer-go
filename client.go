@@ -1,4 +1,4 @@
-package omni_client
+package omnilayer
 
 import (
 	"bytes"
@@ -17,25 +17,19 @@ const (
 )
 
 type Client struct {
-	id         uint64 // atomic
+	id         uint64
 	config     *ConnConfig
 	httpClient *http.Client
-	//mtx          sync.Mutex
-	//disconnected bool
-	//retryCount   int64
 
-	// Track command and their response channels by ID.
 	requestLock sync.Mutex
 	requestMap  map[uint64]*list.Element
 	requestList *list.List
 
-	// Networking infrastructure.
 	sendChan     chan []byte
 	sendPostChan chan *sendPostDetails
-	//connEstablished chan struct{}
-	disconnect chan struct{}
-	shutdown   chan struct{}
-	wg         sync.WaitGroup
+	disconnect   chan struct{}
+	shutdown     chan struct{}
+	wg           sync.WaitGroup
 }
 
 func (c *Client) WaitForShutdown() {
@@ -84,15 +78,7 @@ func (c *Client) do(cmd command) chan *response {
 }
 
 func (c *Client) sendPost(jReq *jsonRequest) {
-	protocol := "http"
-
-	//if !c.config.DisableTLS {
-	//	protocol = "https"
-	//}
-
-	bodyReader := bytes.NewReader(jReq.marshalledJSON)
-
-	req, err := http.NewRequest(http.MethodPost, protocol+"://"+c.config.Host, bodyReader)
+	req, err := http.NewRequest(http.MethodPost, "http://"+c.config.Host, bytes.NewReader(jReq.marshalledJSON))
 	if err != nil {
 		jReq.responseChan <- &response{result: nil, err: err}
 		return

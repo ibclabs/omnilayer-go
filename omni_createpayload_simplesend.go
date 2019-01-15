@@ -1,4 +1,4 @@
-package omni_client
+package omnilayer
 
 import (
 	"encoding/json"

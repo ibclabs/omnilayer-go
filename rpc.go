@@ -1,4 +1,4 @@
-package omni_client
+package omnilayer
 
 import "github.com/ibclabs/omnilayer-go/omnijson"
 
