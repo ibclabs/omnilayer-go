@@ -38,16 +38,7 @@ func (c *Client) OmniCreatePayloadSimpleSend(
 	})).Receive()
 }
 
-func (c *Client) CreateRawTransaction(parameters map[string]uint32) (*omnijson.CreateRawTransactionResult, error) {
-	params := make([]omnijson.CreateRawTransactionParameter, 0, len(parameters))
-
-	for tx, vout := range parameters {
-		params = append(params, omnijson.CreateRawTransactionParameter{
-			Tx:   tx,
-			Vout: vout,
-		})
-	}
-
+func (c *Client) CreateRawTransaction(params []omnijson.CreateRawTransactionParameter) (*omnijson.CreateRawTransactionResult, error) {
 	return futureCreateRawTransaction(c.do(omnijson.CreateRawTransactionCommand{
 		Parameters: params,
 	})).Receive()
@@ -65,5 +56,15 @@ func (c *Client) OmniCreateRawTxReference(raw, destination, amount string) (*omn
 		Raw:         raw,
 		Destination: destination,
 		Amount:      amount,
+	})).Receive()
+}
+
+func (c *Client) OmniCreateRawTxChange(
+	raw, destination string, fee float64,
+	prevs []omnijson.OmniCreateRawTxChangeParameter) (*omnijson.OmniCreateRawTxChangeResult, error) {
+	return futureOmniCreateRawTxChange(c.do(omnijson.OmniCreateRawTxChangeCommand{
+		Raw:         raw,
+		Destination: destination,
+		Fee:         fee,
 	})).Receive()
 }
