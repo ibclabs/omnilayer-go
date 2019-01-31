@@ -68,3 +68,7 @@ func (c *Client) OmniCreateRawTxChange(
 		Fee:         fee,
 	})).Receive()
 }
+
+func (c *Client) ImportAddress(address string, rescan bool) error {
+	return futureImportAddress(c.do(omnijson.ImportAddressCommand{Adress: address, Rescan: rescan})).Receive()
+}
