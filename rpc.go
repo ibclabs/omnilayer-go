@@ -17,7 +17,7 @@ func (c *Client) GetInfo() (*omnijson.OmniGetInfoResult, error) {
 }
 
 func (c *Client) OmniGetTransaction(hash string) (*omnijson.OmniGettransactionResult, error) {
-	return futureOmniGetTransaction(c.do(omnijson.OmniGettransactionCommand{
+	return futureOmniGetTransaction(c.do(omnijson.OmniGetTransactionCommand{
 		Hash: hash,
 	})).Receive()
 }
