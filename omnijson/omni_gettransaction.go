@@ -28,20 +28,20 @@ type OmniGettransactionResult struct {
 	Fee             string `json:"fee"`
 	From            string `json:"sendingaddress"`
 	To              string `json:"referenceaddress"`
-	Mine            bool   `json:"ismine"`
+	Type            string `json:"type"`
+	Amount          string `json:"amount"`
+	BlockHash       string `json:"blockhash"`
+	InvalidReason   string `json:"invalidreason"`
 	Version         int32  `json:"version"`
 	TypeInt         int32  `json:"type_int"`
-	Type            string `json:"type"`
 	PropertyID      int32  `json:"propertyid"`
-	Divisible       bool   `json:"divisible"`
-	Amount          string `json:"amount"`
-	Valid           bool   `json:"valid"`
-	BlockHash       string `json:"blockhash"`
 	BlockTimestamp  int32  `json:"blocktime"`
 	PositionInBlock int32  `json:"positioninblock"`
 	BlockHeight     int32  `json:"block"`
 	Confirmations   uint32 `json:"confirmations"`
-	InvalidReason   string `json:"invalidreason"`
+	Mine            bool   `json:"ismine"`
+	Divisible       bool   `json:"divisible"`
+	Valid           bool   `json:"valid"`
 }
 
 type OmniGetTransactionCommand struct {

@@ -1,10 +1,6 @@
 package omnijson
 
-type OmniCreateRawTxChangeResult string
-
-func (res OmniCreateRawTxChangeResult) String() string {
-	return string(res)
-}
+type OmniCreateRawTxChangeResult = string
 
 type OmniCreateRawTxChangeCommand struct {
 	Raw         string

@@ -1,6 +1,6 @@
 package omnijson
 
-type OmniCreateRawTxReferenceResult string
+type OmniCreateRawTxReferenceResult = string
 
 type OmniCreateRawTxReferenceCommand struct {
 	Raw         string

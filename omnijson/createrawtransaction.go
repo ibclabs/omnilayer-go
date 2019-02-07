@@ -5,7 +5,7 @@ Result:
 "transaction"            (string) hex string of the transaction
 */
 
-type CreateRawTransactionResult string
+type CreateRawTransactionResult = string
 
 type CreateRawTransactionCommand struct {
 	Parameters []CreateRawTransactionParameter

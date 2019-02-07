@@ -1,6 +1,6 @@
 package omnijson
 
-type OmniCreateRawTxOpReturnResult string
+type OmniCreateRawTxOpReturnResult = string
 
 type OmniCreateRawTxOpReturnCommand struct {
 	Raw     string

@@ -5,7 +5,7 @@ Result:
 "payload"             (string) the hex-encoded payload
 */
 
-type OmniCreatePayloadSimpleSendResult string
+type OmniCreatePayloadSimpleSendResult = string
 
 type OmniCreatePayloadSimpleSendCommand struct {
 	Property int32

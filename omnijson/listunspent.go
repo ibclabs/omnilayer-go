@@ -19,7 +19,7 @@ Result
 ]
 */
 
-type ListUnspentResult struct {
+type ListUnspentResult = []struct {
 	Tx            string  `json:"txid"`
 	Address       string  `json:"address"`
 	ScriptPubKey  string  `json:"scriptPubKey"`

@@ -8,53 +8,44 @@ import (
 
 type futureCreateRawTransaction chan *response
 
-func (f futureCreateRawTransaction) Receive() (*omnijson.CreateRawTransactionResult, error) {
+func (f futureCreateRawTransaction) Receive() (omnijson.CreateRawTransactionResult, error) {
+	var result omnijson.CreateRawTransactionResult
+
 	data, err := receive(f)
 	if err != nil {
-		return nil, err
+		return result, err
 	}
 
-	result := new(omnijson.CreateRawTransactionResult)
-
-	if err := json.Unmarshal(data, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	err = json.Unmarshal(data, &result)
+	return result, err
 }
 
 type futureGetBlockChainInfo chan *response
 
-func (f futureGetBlockChainInfo) Receive() (*omnijson.GetBlockChainInfoResult, error) {
+func (f futureGetBlockChainInfo) Receive() (omnijson.GetBlockChainInfoResult, error) {
+	var result omnijson.GetBlockChainInfoResult
+
 	data, err := receive(f)
 	if err != nil {
-		return nil, err
+		return result, err
 	}
 
-	result := new(omnijson.GetBlockChainInfoResult)
-
-	if err := json.Unmarshal(data, result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	err = json.Unmarshal(data, &result)
+	return result, err
 }
 
 type futureListUnspent chan *response
 
-func (f futureListUnspent) Receive() ([]omnijson.ListUnspentResult, error) {
+func (f futureListUnspent) Receive() (omnijson.ListUnspentResult, error) {
 	data, err := receive(f)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]omnijson.ListUnspentResult, 0)
+	result := make(omnijson.ListUnspentResult, 0)
 
-	if err := json.Unmarshal(data, &result); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	err = json.Unmarshal(data, &result)
+	return result, err
 }
 
 type futureImportAddress chan *response
@@ -62,4 +53,18 @@ type futureImportAddress chan *response
 func (f futureImportAddress) Receive() error {
 	_, err := receive(f)
 	return err
+}
+
+type futureSendRawTransaction chan *response
+
+func (f futureSendRawTransaction) Receive() (omnijson.SendRawTransactionResult, error) {
+	var res omnijson.SendRawTransactionResult
+
+	data, err := receive(f)
+	if err != nil {
+		return res, err
+	}
+
+	err = json.Unmarshal(data, &res)
+	return res, err
 }

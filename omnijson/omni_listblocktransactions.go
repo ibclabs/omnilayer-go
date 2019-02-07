@@ -8,7 +8,7 @@ Result
 ]
 */
 
-//type OmniListBlockTransactionsResult string
+type OmniListBlockTransactionsResult = []string
 
 type OmniListBlockTransactionsCommand struct {
 	Block int64
