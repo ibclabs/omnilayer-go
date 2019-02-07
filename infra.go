@@ -8,6 +8,42 @@ import (
 
 const sendPostBufferSize = 100
 
+type SigHashType = string
+
+// Constants used to indicate the signature hash type for SignRawTransaction.
+const (
+	// SigHashAll indicates ALL of the outputs should be signed.
+	SigHashAll SigHashType = "ALL"
+
+	// SigHashNone indicates NONE of the outputs should be signed.  This
+	// can be thought of as specifying the signer does not care where the
+	// bitcoins go.
+	SigHashNone SigHashType = "NONE"
+
+	// SigHashSingle indicates that a SINGLE output should be signed.  This
+	// can be thought of specifying the signer only cares about where ONE of
+	// the outputs goes, but not any of the others.
+	SigHashSingle SigHashType = "SINGLE"
+
+	// SigHashAllAnyoneCanPay indicates that signer does not care where the
+	// other inputs to the transaction come from, so it allows other people
+	// to add inputs.  In addition, it uses the SigHashAll signing method
+	// for outputs.
+	SigHashAllAnyoneCanPay SigHashType = "ALL|ANYONECANPAY"
+
+	// SigHashNoneAnyoneCanPay indicates that signer does not care where the
+	// other inputs to the transaction come from, so it allows other people
+	// to add inputs.  In addition, it uses the SigHashNone signing method
+	// for outputs.
+	SigHashNoneAnyoneCanPay SigHashType = "NONE|ANYONECANPAY"
+
+	// SigHashSingleAnyoneCanPay indicates that signer does not care where
+	// the other inputs to the transaction come from, so it allows other
+	// people to add inputs.  In addition, it uses the SigHashSingle signing
+	// method for outputs.
+	SigHashSingleAnyoneCanPay SigHashType = "SINGLE|ANYONECANPAY"
+)
+
 type rawResponse struct {
 	Result json.RawMessage `json:"result"`
 	Error  *rpcError       `json:"error"`

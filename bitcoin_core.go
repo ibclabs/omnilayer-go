@@ -58,13 +58,41 @@ func (f futureImportAddress) Receive() error {
 type futureSendRawTransaction chan *response
 
 func (f futureSendRawTransaction) Receive() (omnijson.SendRawTransactionResult, error) {
-	var res omnijson.SendRawTransactionResult
+	var result omnijson.SendRawTransactionResult
 
 	data, err := receive(f)
 	if err != nil {
-		return res, err
+		return result, err
 	}
 
-	err = json.Unmarshal(data, &res)
-	return res, err
+	err = json.Unmarshal(data, &result)
+	return result, err
+}
+
+type futureSignRawTransaction chan *response
+
+func (f futureSignRawTransaction) Receive() (omnijson.SignRawTransactionResult, error) {
+	var result omnijson.SignRawTransactionResult
+
+	data, err := receive(f)
+	if err != nil {
+		return result, err
+	}
+
+	err = json.Unmarshal(data, &result)
+	return result, err
+}
+
+type futureSignRawTransactionWithKey chan *response
+
+func (f futureSignRawTransactionWithKey) Receive() (omnijson.SignRawTransactionWithKeyResult, error) {
+	var result omnijson.SignRawTransactionWithKeyResult
+
+	data, err := receive(f)
+	if err != nil {
+		return result, err
+	}
+
+	err = json.Unmarshal(data, &result)
+	return result, err
 }
