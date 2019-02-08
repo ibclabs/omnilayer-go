@@ -61,3 +61,7 @@ func (c *Client) SignRawTransaction(cmd omnijson.SignRawTransactionCommand) (omn
 func (c *Client) SignRawTransactionWithKey(cmd omnijson.SignRawTransactionWithKeyCommand) (omnijson.SignRawTransactionWithKeyResult, error) {
 	return futureSignRawTransactionWithKey(c.do(cmd)).Receive()
 }
+
+func (c *Client) OmniGetBalance(cmd omnijson.OmniGetBalanceCommand) (omnijson.OmniGetBalanceResult, error) {
+	return futureOmniGetBalance(c.do(cmd)).Receive()
+}
