@@ -34,7 +34,7 @@ type OmniGettransactionResult struct {
 	InvalidReason   string `json:"invalidreason"`
 	Version         int32  `json:"version"`
 	TypeInt         int32  `json:"type_int"`
-	PropertyID      int32  `json:"propertyid"`
+	PropertyID      uint32  `json:"propertyid"`
 	BlockTimestamp  int32  `json:"blocktime"`
 	PositionInBlock int32  `json:"positioninblock"`
 	BlockHeight     int32  `json:"block"`
